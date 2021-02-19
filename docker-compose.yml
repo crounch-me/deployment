@@ -1,0 +1,32 @@
+version: "2.1"
+
+services:
+  wait:
+    image: alpine
+    depends_on:
+      crounch-back:
+        condition: service_healthy
+      crounch-front:
+        condition: service_healthy
+  crounch-back:
+    image: "sehsyha/crounch-back"
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O /dev/null http://localhost:3000/swagger/doc.json || exit 1",
+        ]
+      interval: 10s
+      timeout: 30s
+      retries: 6
+  crounch-front:
+    image: "sehsyha/crounch-front"
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80 || exit 1"]
+      interval: 10s
+      timeout: 30s
+      retries: 6
