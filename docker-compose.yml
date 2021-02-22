@@ -13,6 +13,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    links:
+      - "crounch-back:backend"
+      - "crounch-front:frontend"
     volumes:
       - ./config/nginx:/etc/nginx/conf.d
       - ./config/certbot/conf:/etc/letsencrypt
@@ -24,8 +27,6 @@ services:
       - ./config/certbot/www:/var/www/certbot
   crounch-back:
     image: "sehsyha/crounch-back"
-    ports:
-      - "3000:3000"
     healthcheck:
       test:
         [
@@ -37,10 +38,7 @@ services:
       retries: 6
   crounch-front:
     image: "sehsyha/crounch-front"
-    ports:
-      - "8080:80"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80 || exit 1"]
       interval: 10s
       timeout: 30s
-      retries: 6
