@@ -8,6 +8,20 @@ services:
         condition: service_healthy
       crounch-front:
         condition: service_healthy
+  reverse:
+    image: nginx:1.15-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx:/etc/nginx/conf.d
+      - ./config/certbot/conf:/etc/letsencrypt
+      - ./config/certbot/www:/var/www/certbot
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./config/certbot/conf:/etc/letsencrypt
+      - ./config/certbot/www:/var/www/certbot
   crounch-back:
     image: "sehsyha/crounch-back"
     ports:
@@ -24,8 +38,7 @@ services:
   crounch-front:
     image: "sehsyha/crounch-front"
     ports:
-      - "80:80"
-      - "443:80"
+      - "8080:80"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80 || exit 1"]
       interval: 10s
